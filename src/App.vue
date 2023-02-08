@@ -4,17 +4,30 @@
       {{ endpoint }}
     </h1>
 
-    <iframe
+    <!-- <iframe
       class="w-full h-screen flex justify-center items-center flex-col"
-      :src="'../public/response.svg'"
-    />
+      :src="'/response.svg'"
+    /> -->
+    <object
+      class="w-full h-screen flex justify-center items-center flex-col"
+      :data="'/response.svg'"
+    >
+      <embed :src="'/response.svg'" width="600" height="400" />
+      Error: Embedded data could not be displayed.
+    </object>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue";
 // import axios from "axios";
-import svg from "../public/response.svg";
-console.log(svg);
 const endpoint = ref("Hello World");
 </script>
+
+<style>
+#TX86 {
+  fill: blue;
+  font: bolder;
+  font-size: xx-large;
+}
+</style>
