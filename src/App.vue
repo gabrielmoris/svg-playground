@@ -8,14 +8,16 @@
       >Localhost</a
     >
     <button
-      class="mt-20 bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+      :disabled="buttonName === 'LOGGED!'"
+      class="mt-20 bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded disabled:bg-gray-500"
       @click="access"
     >
       {{ buttonName }}
     </button>
 
     <button
-      class="mt-20 bg-transparent hover:bg-green-500 text-green-700 font-semibold hover:text-white py-2 px-4 border border-green-500 hover:border-transparent rounded"
+      :disabled="hasSaal"
+      class="mt-20 bg-transparent hover:bg-green-500 text-green-700 font-semibold hover:text-white py-2 px-4 border border-green-500 hover:border-transparent rounded disabled:bg-gray-500"
       @click="getSaalplan"
     >
       Saalplan
@@ -45,13 +47,13 @@ import axios from "axios";
 axios.defaults.withCredentials = true;
 const endpoint = ref("http://localhost:3002/");
 const buttonName = ref("Login");
-
+const hasSaal = ref(false);
 const access = async () => {
   const { data } = await axios.get(endpoint.value);
   axios.defaults.headers.common[
     "Authorization"
   ] = `Bearer ${data.Authorization}`;
-  console.log(JSON.parse(data));
+  buttonName.value = "LOGGED!";
 };
 
 const getSaalplan = async () => {
@@ -63,10 +65,12 @@ const getSaalplan = async () => {
   let parser = new DOMParser();
   let doc = parser.parseFromString(data, "application/xml");
   const container = document.getElementById("container");
-  if (container != null)
+  if (container != null) {
     container.appendChild(
       container.ownerDocument.importNode(doc.documentElement, true)
     );
+    hasSaal.value = true;
+  }
 };
 </script>
 
