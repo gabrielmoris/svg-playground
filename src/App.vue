@@ -45,7 +45,6 @@ import axios from "axios";
 axios.defaults.withCredentials = true;
 const endpoint = ref("http://localhost:3002/");
 const buttonName = ref("Login");
-const svg = ref();
 
 const access = async () => {
   const { data } = await axios.get(endpoint.value);
@@ -63,13 +62,11 @@ const getSaalplan = async () => {
   ] = `Bearer ${data.Authorization}`;
   let parser = new DOMParser();
   let doc = parser.parseFromString(data, "application/xml");
-  // svg.value = doc;
   const container = document.getElementById("container");
   if (container != null)
     container.appendChild(
       container.ownerDocument.importNode(doc.documentElement, true)
     );
-  console.timeLog(data);
 };
 </script>
 
