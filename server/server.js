@@ -55,18 +55,45 @@ app.get("/", async (req, res) => {
 });
 
 app.get("/saalplan", async (req, res) => {
-  var config = {
+  const date = new Date().toISOString();
+  var config0 = {
     method: "get",
     maxBodyLength: Infinity,
-    url: "https://test-eras.stage-entertainment.de/shows/28410470/floorplan?hidePrices=0&withoutJS=0&withPromotions=false",
+    url: `https://test-eras.stage-entertainment.de/shows/search?category=Musik%20or%20Sonstiges&city=Hamburg&endDate=2023-03-20T20%3A00%3A00&eventname=HAMILTON&locationCode=5155&startDate=${date.slice(
+      0,
+      10
+    )}T00%3A00%3A00&withPromotions=true&withReductions=true&withZones=true`,
     headers: {
-      accept: "application/svg+xml",
+      accept: "application/json",
       Authorization: req.headers.authorization,
     },
   };
-  axios(config)
+
+  axios(config0)
     .then(function (response) {
-      res.status(200).send(JSON.stringify(response.data));
+      res.status(200);
+      console.log(
+        response.data[Math.floor(Math.random() * response.data.length)].id
+      );
+
+      var config1 = {
+        method: "get",
+        maxBodyLength: Infinity,
+        url: `https://test-eras.stage-entertainment.de/shows/${
+          response.data[Math.floor(Math.random() * response.data.length)].id
+        }/floorplan?hidePrices=0&withoutJS=0&withPromotions=false`,
+        headers: {
+          accept: "application/svg+xml",
+          Authorization: req.headers.authorization,
+        },
+      };
+      axios(config1)
+        .then(function (response) {
+          res.status(200).send(JSON.stringify(response.data));
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
     })
     .catch(function (error) {
       console.log(error);

@@ -62,6 +62,7 @@ const getSaalplan = async () => {
   axios.defaults.headers.common[
     "Authorization"
   ] = `Bearer ${data.Authorization}`;
+  // console.log(data);
   let parser = new DOMParser();
   let doc = parser.parseFromString(data, "application/xml");
   const container = document.getElementById("container");
@@ -69,6 +70,13 @@ const getSaalplan = async () => {
     container.appendChild(
       container.ownerDocument.importNode(doc.documentElement, true)
     );
+    console.log(doc.querySelectorAll("script"));
+    const chairs = document.querySelectorAll("circle");
+    chairs.forEach((chair) => {
+      chair.addEventListener("click", (e) => {
+        console.log(e.target);
+      });
+    });
     hasSaal.value = true;
   }
 };
