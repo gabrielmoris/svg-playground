@@ -24,26 +24,13 @@
     </button>
 
     <div class="flex items-center justify-center pt-20" id="container"></div>
-
-    <!-- <iframe
-      class="w-full h-screen flex justify-center items-center flex-col"
-      :src="'/response.svg'"
-    /> -->
-
-    <!-- <object
-      v-if="svg"
-      class="w-full h-screen flex justify-center items-center flex-col"
-      :data="'/response.svg'"
-    >
-      <embed v-bind:src="'/response.svg'" width="600" height="400" />
-      Error: Embedded data could not be displayed.
-    </object> -->
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue";
 import axios from "axios";
+import swal from "sweetalert";
 axios.defaults.withCredentials = true;
 const endpoint = ref("http://localhost:3002/");
 const buttonName = ref("Login");
@@ -64,17 +51,25 @@ const getSaalplan = async () => {
   ] = `Bearer ${data.Authorization}`;
   // console.log(data);
   let parser = new DOMParser();
-  let doc = parser.parseFromString(data, "application/xml");
+  let doc = parser.parseFromString(data.saalplan, "application/xml");
+  const showID = ref(data.showID);
   const container = document.getElementById("container");
   if (container != null) {
     container.appendChild(
       container.ownerDocument.importNode(doc.documentElement, true)
     );
-    console.log(doc.querySelectorAll("script"));
+    // const script = doc.querySelectorAll("script")[0].innerHTML;
+
+    // console.log(script);
     const chairs = document.querySelectorAll("circle");
     chairs.forEach((chair) => {
       chair.addEventListener("click", (e) => {
-        console.log(e.target);
+        swal({
+          title: `Stuhl ID:${e.target!.id}`,
+          text: `Show ID:${showID.value}`,
+          icon: "success",
+          button: "Danke",
+        });
       });
     });
     hasSaal.value = true;

@@ -9,10 +9,12 @@ const port = 3002;
 const app = express();
 dotenv.config();
 function hasCookie(req, res, next) {
-  console.log("headers auth", req.headers.authorization);
   if (req.headers.authorization) {
+    console.log("Already authorized");
+    // console.log("headers auth", req.headers.authorization);
     next();
   } else {
+    console.log("In proccess of authorizing,");
     let configToken = {
       method: "post",
       url: process.env.VITE_ENDPOINT_TOKEN,
@@ -72,16 +74,13 @@ app.get("/saalplan", async (req, res) => {
   axios(config0)
     .then(function (response) {
       res.status(200);
-      console.log(
-        response.data[Math.floor(Math.random() * response.data.length)].id
-      );
+      const showID =
+        response.data[Math.floor(Math.random() * response.data.length)].id;
 
       var config1 = {
         method: "get",
         maxBodyLength: Infinity,
-        url: `https://test-eras.stage-entertainment.de/shows/${
-          response.data[Math.floor(Math.random() * response.data.length)].id
-        }/floorplan?hidePrices=0&withoutJS=0&withPromotions=false`,
+        url: `https://test-eras.stage-entertainment.de/shows/${showID}/floorplan?hidePrices=0&withoutJS=0&withPromotions=false`,
         headers: {
           accept: "application/svg+xml",
           Authorization: req.headers.authorization,
@@ -89,7 +88,9 @@ app.get("/saalplan", async (req, res) => {
       };
       axios(config1)
         .then(function (response) {
-          res.status(200).send(JSON.stringify(response.data));
+          res
+            .status(200)
+            .send(JSON.stringify({ saalplan: response.data, showID: showID }));
         })
         .catch(function (error) {
           console.log(error);
