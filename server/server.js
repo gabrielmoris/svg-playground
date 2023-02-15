@@ -8,12 +8,15 @@ import { stringify } from "qs";
 const port = 3002;
 const app = express();
 dotenv.config();
+// Bad behaviour, I should check first refreshTocken
 function hasCookie(req, res, next) {
   if (req.headers.authorization) {
     console.log("Already authorized");
     // console.log("headers auth", req.headers.authorization);
     next();
   } else {
+    // Here I should check If I have the refress Token
+    //request from refresh (I send the refresh tocken)
     console.log("In proccess of authorizing,");
     let configToken = {
       method: "post",
@@ -56,45 +59,24 @@ app.get("/", async (req, res) => {
   res.status(200);
 });
 
-app.get("/saalplan", async (req, res) => {
+app.get("/saalplan/:id", async (req, res) => {
+  const showId = req.params.id;
+
   const date = new Date().toISOString();
-  var config0 = {
+
+  var config1 = {
     method: "get",
     maxBodyLength: Infinity,
-    url: `https://test-eras.stage-entertainment.de/shows/search?category=Musik%20or%20Sonstiges&city=Hamburg&endDate=2023-03-20T20%3A00%3A00&eventname=HAMILTON&locationCode=5155&startDate=${date.slice(
-      0,
-      10
-    )}T00%3A00%3A00&withPromotions=true&withReductions=true&withZones=true`,
+    url: `https://test-eras.stage-entertainment.de/shows/${showId}/floorplan?hidePrices=0&withoutJS=0&withPromotions=false`,
     headers: {
-      accept: "application/json",
+      accept: "application/svg+xml",
       Authorization: req.headers.authorization,
     },
   };
 
-  axios(config0)
+  axios(config1)
     .then(function (response) {
-      res.status(200);
-      const showID =
-        response.data[Math.floor(Math.random() * response.data.length)].id;
-
-      var config1 = {
-        method: "get",
-        maxBodyLength: Infinity,
-        url: `https://test-eras.stage-entertainment.de/shows/${showID}/floorplan?hidePrices=0&withoutJS=0&withPromotions=false`,
-        headers: {
-          accept: "application/svg+xml",
-          Authorization: req.headers.authorization,
-        },
-      };
-      axios(config1)
-        .then(function (response) {
-          res
-            .status(200)
-            .send(JSON.stringify({ saalplan: response.data, showID: showID }));
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
+      res.status(200).send(JSON.stringify({ saalplan: response.data }));
     })
     .catch(function (error) {
       console.log(error);

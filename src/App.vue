@@ -1,18 +1,12 @@
 <template>
   <div class="flex justify-center items-center flex-col">
-    <h1 class="text-red-900 text-bold text-3xl">Server in:</h1>
-    <a
-      class="text-red-900 text-bold text-3xl hover:text-blue-800 hover:font-bold"
-      :href="endpoint"
-      target="_blank"
-      >Localhost</a
-    >
+    <h1 class="text-red-900 text-bold text-3xl">Write your Show ID</h1>
+    <input type="text" v-model="inputShowId" />
     <button
-      :disabled="buttonName === 'LOGGED!'"
       class="mt-20 bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded disabled:bg-gray-500"
-      @click="access"
+      @click="showStuhle"
     >
-      {{ buttonName }}
+      showShuhle
     </button>
 
     <button
@@ -28,23 +22,30 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import axios from "axios";
-import swal from "sweetalert";
+import Swal from "sweetalert2";
 axios.defaults.withCredentials = true;
 const endpoint = ref("http://localhost:3002/");
-const buttonName = ref("Login");
+
 const hasSaal = ref(false);
-const access = async () => {
+const inputShowId = ref("25626955");
+const arrayVonStuhle = ref([]);
+
+arrayVonStuhle.value.push({ showID: inputShowId.value });
+
+const acess = async () => {
   const { data } = await axios.get(endpoint.value);
   axios.defaults.headers.common[
     "Authorization"
   ] = `Bearer ${data.Authorization}`;
-  buttonName.value = "LOGGED!";
 };
+onMounted(() => {
+  acess();
+});
 
 const getSaalplan = async () => {
-  endpoint.value = "http://localhost:3002/saalplan";
+  endpoint.value = `http://localhost:3002/saalplan/${inputShowId.value}`;
   const { data } = await axios.get(endpoint.value);
   axios.defaults.headers.common[
     "Authorization"
@@ -52,35 +53,53 @@ const getSaalplan = async () => {
   // console.log(data);
   let parser = new DOMParser();
   let doc = parser.parseFromString(data.saalplan, "application/xml");
-  const showID = ref(data.showID);
+
   const container = document.getElementById("container");
+  console.log(doc.documentElement);
   if (container != null) {
     container.appendChild(
       container.ownerDocument.importNode(doc.documentElement, true)
     );
-    // const script = doc.querySelectorAll("script")[0].innerHTML;
+    const script = doc.querySelectorAll("script")[0].innerHTML;
 
-    // console.log(script);
+    console.log(script);
+
     const chairs = document.querySelectorAll("circle");
     chairs.forEach((chair) => {
       chair.addEventListener("click", (e) => {
-        swal({
-          title: `Stuhl ID:${e.target!.id}`,
-          text: `Show ID:${showID.value}`,
-          icon: "success",
-          button: "Danke",
-        });
+        console.log(e.target);
+
+        arrayVonStuhle.value.push({ chairSelected: e.target!.id });
       });
     });
     hasSaal.value = true;
   }
 };
+const showStuhle = () => {
+  console.log(arrayVonStuhle.value);
+  let text = "";
+  arrayVonStuhle.value.forEach((input, index) => {
+    if (index === 0) {
+      text = text + "Show ID" + input.showID + ",\n";
+    } else {
+      text = text + " stuhl" + index + " " + input.chairSelected + ",\n";
+    }
+    console.log(text);
+  });
+
+  Swal.fire({
+    title: "Deine gewahlte stuhle:",
+    text: text,
+    icon: "info",
+    confirmButtonText: "Danke, tschüs!",
+  });
+};
 </script>
 
 <style>
 #TX86 {
-  fill: pink;
+  fill: red;
   font: bolder;
-  filter: drop-shadow(3px 3px 2px #cb44dd);
+  filter: drop-shadow(3px 3px 2px #f16464);
 }
 </style>
