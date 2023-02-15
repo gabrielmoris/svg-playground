@@ -1,7 +1,22 @@
 <template>
   <div class="flex justify-center items-center flex-col">
-    <h1 class="text-red-900 text-bold text-3xl">Write your Show ID</h1>
-    <input type="text" v-model="inputShowId" />
+    <div class="mb-6">
+      <label
+        for="show-id"
+        class="block mb-2 text-sm font-medium text-green-700 dark:text-green-500"
+        >Show Id</label
+      >
+      <input
+        type="text"
+        id="show-id"
+        v-model="inputShowId"
+        class="bg-green-50 border border-green-500 text-green-900 dark:text-green-400 placeholder-green-700 dark:placeholder-green-500 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 dark:bg-gray-700 dark:border-green-500"
+        placeholder="Success input"
+      />
+      <p class="mt-2 text-sm text-green-600 dark:text-green-500">
+        <span v-if="gotSaalplan" class="font-medium">Danke!</span>
+      </p>
+    </div>
     <button
       class="mt-20 bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded disabled:bg-gray-500"
       @click="showStuhle"
@@ -31,6 +46,7 @@ const endpoint = ref("http://localhost:3002/");
 const hasSaal = ref(false);
 const inputShowId = ref("25626955");
 const arrayVonStuhle = ref([]);
+const gotSaalplan = ref(false);
 
 arrayVonStuhle.value.push({ showID: inputShowId.value });
 
@@ -63,7 +79,7 @@ const getSaalplan = async () => {
     const script = doc.querySelectorAll("script")[0].innerHTML;
 
     console.log(script);
-
+    gotSaalplan.value = true;
     const chairs = document.querySelectorAll("circle");
     chairs.forEach((chair) => {
       chair.addEventListener("click", (e) => {
